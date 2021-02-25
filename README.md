@@ -25,7 +25,7 @@ can be found in the "shared" directory.  The shared code is an independent Pytho
 Each API has its own Pipfile so that it can be run in its own virtual environment. 
 
 # Installation
-The Python code utilizes features introduced in Python 3.7, such as data classes. 
+The Python code utilizes features introduced in Python 3.8, such as data classes. 
 [Pipenv](https://pipenv.readthedocs.io/en/latest/) is used for virtual environment and package management.
 If you prefer to use pip and pyenv (or virtualenv), you can find the required libraries in the files named "Pipfile".
 These instructions will use pipenv commands.
@@ -43,27 +43,46 @@ All Selene applications are time zone agnostic.  It is recommended that the time
 
 ## Postgres DB
 * Recommended server configuration: Ubuntu 18.04 LTS, 2 CPU, 4GB RAM, 50GB disk.
-* Use the package management system to install Python 3.7, Python 3 pip and PostgreSQL 10  
+* Use the package management system to install Python 3.8, Python 3 pip and PostgreSQL 10  
 ```
-sudo apt-get install postgresql python3.7 python python3-pip
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install --reinstall libpq-dev // only needed if you are ussing WSL2
+sudo apt-get install postgresql python3.8 python python3-pip postgresql-contrib // use python3.8 from this point if you are using WSL2
 ```
-* Set Postgres to start on boot  
+* Set Postgres to start on boot and start the database service
 ```
+sudo service postgresql start
 sudo systemctl enable postgresql
 ```
-* Clone the selene-backend and documentation repositories
+*Create the selene-backend and documentation repositories folder and bring the necessary permissions
 ```
 sudo mkdir -p /opt/selene
-sudo chown -R mycroft:users /opt/selene
+sudo chown -R mycroft:users /opt/selene 
+```
+If you are using WSL2
+```
+sudo mkdir -p /opt/selene
+sudo chmod -R a+rwX /opt/selene
+```
+*Clone the selene-backend and documentation repository
+```
 cd /opt/selene
 git clone https://github.com/MycroftAI/selene-backend.git
 ```
 * Create the virtual environment for the database code
 ```
-sudo python3.7 -m pip install pipenv
+sudo python3.8 -m pip install pipenv
 cd /opt/selene/selene-backend/db
 pipenv install
 ```
+if you are using WSL2 on Windows:
+```
+sudo python3.8 -m pip install pipenv
+cd /opt/selene/selene-backend/db
+sudo pipenv install --python="/usr/bin/python3.8"
+```
+
 * Download files from geonames.org used to populate the geography schema tables
 ```
 mkdir -p /opt/selene/data
@@ -86,7 +105,7 @@ export POSTGRES_PASSWORD=<postgres user password>
 * Run the bootstrap script
 ```
 cd /opt/selene/selene-backend/db/scripts
-pipenv run python bootstrap_mycroft_db.py
+pipenv --python="/usr/bin/python3.8" run python bootstrap_mycroft_db.py
 ```
 * By default, Postgres only listens on localhost.  This will not do for a multi-server setup.  Change the 
 `listen_addresses` value in the `posgresql.conf` file to the private IP of the database server.  This file is owned by
@@ -120,10 +139,10 @@ The majority of the setup for each API is the same.  This section defines the st
 to each API will be defined in their respective sections.
 * Add an application user to the VM. Either give this user sudo privileges or execute the sudo commands below as a user
 with sudo privileges.  These instructions will assume a user name of "mycroft"
-* Use the package management system to install Python 3.7, Python 3 pip and Python 3.7 Developer Tools 
+* Use the package management system to install Python 3.8, Python 3 pip and Python 3.8 Developer Tools 
 ```
-sudo apt install python3.7 python3-pip python3.7-dev 
-sudo python3.7 -m pip install pipenv
+sudo apt install python3.8 python3-pip python3.8-dev 
+sudo python3.8 -m pip install pipenv
 ```
 * Setup the Backend Application Directory
 ```
